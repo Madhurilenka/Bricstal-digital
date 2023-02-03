@@ -30,6 +30,12 @@ const CreateUser = async (req, res) => {
         if (!(phone)) {
             return res.status(400).send({ status: false, msg: "Phone number is mendatory for Create a User" })
         }
+        // if (!(username)) {
+        //     return res.status(400).send({ status: false, msg: "Name is mendatory for Create a User" })
+        // }
+        // if (!(/^[a-zA-Z0-9]+$/).test(username)) {
+        //     return res.status(400).send({ status: false, msg: "please Enter valid username " })
+        // }
         if (!(/^[\s]*[6-9]\d{9}[\s]*$/).test(phone)) {
             return res.status(400).send({ status: false, msg: "Please Enter valid phone Number" })
         }
@@ -48,6 +54,9 @@ const CreateUser = async (req, res) => {
         }
         let existphone = await userModel.findOne({ phone: phone })
         if (existphone) { return res.status(400).send({ status: false, msg: "User with this phone number is already registered." }) }
+
+        // let existusername = await userModel.findOne({ username: username })
+        // if (existusername) { return res.status(400).send({ status: false, msg: "This  username is already registered." }) }
 
         let existEmail = await userModel.findOne({ email: email })
         if (existEmail) { return res.status(400).send({ status: false, msg: "User with this email is already registered" }) }
