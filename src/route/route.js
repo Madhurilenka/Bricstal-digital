@@ -12,8 +12,8 @@ router.post("/login",user.Login)
 router.post("/userId",middleware.authentication, link.createLink)
 router.get("/linkId", link.getLink)
 
-router.delete("/deleteLink/:linkid",middleware.authentication,link.deleteLink)
-
+router.delete("/deleteLink/:linkid",middleware.authentication,middleware.authorisation,link.deleteLink)
+//middleware.authorisation,
 
 
 

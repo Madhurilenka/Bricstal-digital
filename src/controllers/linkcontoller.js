@@ -22,57 +22,60 @@ const createLink = async function (req, res) {
         // if (!finduser) {
         //     return res.status(400).send({ status: false, msg: " enter a wrong userid" })
         // }
-
-        let { name, username, userId, link } = req.body
+        const idFromToken =decodedtoken.id
+        
+        let { username,  userId,link } = req.body
 
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, msg: "You have to put details for create a user" })
         }
 
-        if (!(name)) {
-            return res.status(400).send({ status: false, msg: "Name is mendatory for add link" })
-        }
-        if (!(/^[a-zA-Z]{2,}(?: [a-zA-Z]+){0,2}$/).test(name)) {
-            return res.status(400).send({ status: false, msg: "Please enter a valid Name" })
-        }
+        
         if (!(username)) {
             return res.status(400).send({ status: false, msg: "username is mendatory for add link" })
         }
         if (!(/^[a-zA-Z0-9]+$/).test(username)) {
             return res.status(400).send({ status: false, msg: "please Enter valid username " })
         }
-        //  let existusername = await userModel.findOne({ username: username })
-        //  if (existusername) { return res.status(400).send({ status: false, msg: "This  username is already registered." }) }
+        
         if (!userId) {
             return res.status(400).send({ status: false, msg: "need the userid for furture process" })
         }
         if (!mongoose.Types.ObjectId.isValid(userId))
             return res.status(400).send({ status: false, msg: "Please enter valid User Id" });
 
+            if(idFromToken !==userId){
+                return res.status(403).send({ status: false, msg: "Unauthorized Access you are not authorised" });
+            }
+
         if (!(link)) {
-            return res.status(400).send({ status: false, msg: "link is mendatory for add a link" })
+            return res.status(400).send({ status: false, msg: "link is mandatory for add a link" })
         }
         let correctLink = false
         await axios.get(link)
             .then((res) => { if (res.status == 200 || res.status == 201) correctLink = true; })
             .catch((error) => { correctLink = false })
-        if (correctLink == false) return res.status(400).send({ status: false, message: "invalid url please enter valid url!!" });
-        let extraLink = await linkModel.findOne({ username: username, name: name })
-
+        if (correctLink == false)return res.status(400).send({ status: false, message: "invalid url please enter valid url!!" });
+        let extraLink = await userModel.findOne({ username:username,userId: userId })
+        // console.log(extraLink)
+        if(!extraLink){
+            return res.status(400).send({status:false,msg:"no user is found with this Id"})
+        }
         let arr1
-
-        if (extraLink) {
+        if (extraLink.userId==userId) {
+        //.userId==userId
             arr1 = extraLink.link
             arr1.push(link)
             let dataforupdate = { "link": arr1, "count": extraLink.count + 1 }
-            let final = await linkModel.findOneAndUpdate({ username: username, name: name }, { $set: dataforupdate }, { new: true })
-            //  console.log(final)
+            // console.log(dataforupdate)
+            let final = await userModel.findOneAndUpdate({username:username, userId: userId }, { $set: dataforupdate }, { new: true })
+             console.log(final)
             return res.status(201).send({ status: true, message: "success", data: final })
         }
-        if (extraLink == null) {
+        if (extraLink) {
             let itemforadd = {
 
-                "name": name,
+                // "name": name,
                 "userId": userId,
                 "username": username,
                 "link": link,
@@ -105,6 +108,7 @@ const getLink = async (req, res) => {
         {
             const { username } = queryParams
             if (username) {
+
                 filter['username'] = username
             }
         }

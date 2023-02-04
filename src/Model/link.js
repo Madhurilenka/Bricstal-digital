@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const UserSchema = new mongoose.Schema({
 
 
-    name: { type:String, required:true,trim:true},
+    // name: { type:String, required:true,trim:true},
     username:{type:String, required:true,trim:true},
     userId: {type:mongoose.Schema.Types.ObjectId, required:true, ref:"user",trim:true},
      link:[{type:String,trim:true}],
