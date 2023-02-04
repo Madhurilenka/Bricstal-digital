@@ -1,6 +1,5 @@
 const linkModel = require("../Model/link")
 const userModel = require("../Model/User")
-const validation = require("../validation/validation")
 const mongoose = require('mongoose')
 const axios = require('axios')
 
@@ -12,70 +11,67 @@ const axios = require('axios')
 
 const createLink = async function (req, res) {
 
-    try {
-        // let paramId = req.params.userId
 
-        // if (!mongoose.Types.ObjectId.isValid(paramId))
-        //     return res.status(400).send({ status: false, msg: "Please enter valid path Id" });
+try {
+    
+    const idFromToken =decodedtoken.id
+    
+    let { username,  userId,link } = req.body
 
-        // let finduser = await userModel.findById(paramId).select({ __v: 0 })
-        // if (!finduser) {
-        //     return res.status(400).send({ status: false, msg: " enter a wrong userid" })
-        // }
-        const idFromToken =decodedtoken.id
-        
-        let { username,  userId,link } = req.body
+    if (Object.keys(req.body).length == 0) {
+        return res.status(400).send({ status: false, msg: "You have to put details for create a user" })
+    }
 
-        if (Object.keys(req.body).length == 0) {
-            return res.status(400).send({ status: false, msg: "You have to put details for create a user" })
+    
+    if (!(username)) {
+        return res.status(400).send({ status: false, msg: "username is mendatory for add link" })
+    }
+    if (!(/^[a-zA-Z0-9]+$/).test(username)) {
+        return res.status(400).send({ status: false, msg: "please Enter valid username " })
+    }
+    
+    if (!userId) {
+        return res.status(400).send({ status: false, msg: "need the userid for furture process" })
+    }
+    if (!mongoose.Types.ObjectId.isValid(userId))
+        return res.status(400).send({ status: false, msg: "Please enter valid User Id" });
+
+        if(idFromToken !==userId){
+            return res.status(403).send({ status: false, msg: "Unauthorized Access you are not authorised" });
         }
 
-        
-        if (!(username)) {
-            return res.status(400).send({ status: false, msg: "username is mendatory for add link" })
-        }
-        if (!(/^[a-zA-Z0-9]+$/).test(username)) {
-            return res.status(400).send({ status: false, msg: "please Enter valid username " })
-        }
-        
-        if (!userId) {
-            return res.status(400).send({ status: false, msg: "need the userid for furture process" })
-        }
-        if (!mongoose.Types.ObjectId.isValid(userId))
-            return res.status(400).send({ status: false, msg: "Please enter valid User Id" });
+    if (!(link)) {
+        return res.status(400).send({ status: false, msg: "link is mandatory for add a link" })
+    }
+    let correctLink = false
+    await axios.get(link)
+        .then((res) => { if (res.status == 200 || res.status == 201) correctLink = true; })
+        .catch((error) => { correctLink = false })
+    if (correctLink == false)return res.status(400).send({ status: false, message: "invalid url please enter valid url!!" });
+    let extraLink = await userModel.findOne({ username:username,userId: userId })
+    // console.log(extraLink)
+    if(!extraLink){
+        return res.status(400).send({status:false,msg:"no user is found with this Id"})
+    }
+ 
+    let extra = await linkModel.findOne({username:username,userId:userId})
+    // console.log(extra)
+    if(extra){
+    let arr1
+    if(extra.userId==userId){
 
-            if(idFromToken !==userId){
-                return res.status(403).send({ status: false, msg: "Unauthorized Access you are not authorised" });
-            }
-
-        if (!(link)) {
-            return res.status(400).send({ status: false, msg: "link is mandatory for add a link" })
-        }
-        let correctLink = false
-        await axios.get(link)
-            .then((res) => { if (res.status == 200 || res.status == 201) correctLink = true; })
-            .catch((error) => { correctLink = false })
-        if (correctLink == false)return res.status(400).send({ status: false, message: "invalid url please enter valid url!!" });
-        let extraLink = await userModel.findOne({ username:username,userId: userId })
-        // console.log(extraLink)
-        if(!extraLink){
-            return res.status(400).send({status:false,msg:"no user is found with this Id"})
-        }
-        let arr1
-        if (extraLink.userId==userId) {
-        //.userId==userId
-            arr1 = extraLink.link
-            arr1.push(link)
-            let dataforupdate = { "link": arr1, "count": extraLink.count + 1 }
-            // console.log(dataforupdate)
-            let final = await userModel.findOneAndUpdate({username:username, userId: userId }, { $set: dataforupdate }, { new: true })
-             console.log(final)
-            return res.status(201).send({ status: true, message: "success", data: final })
-        }
-        if (extraLink) {
+        arr1 = extra.link
+       
+        arr1.push(link)
+       
+        let dataforupdate = { "link": arr1, "count": extra.count + 1 }
+     
+        let final = await linkModel.findOneAndUpdate({username:username, userId: userId }, { $set: dataforupdate }, { new: true })
+        //  console.log(final)
+        return res.status(201).send({ status: true, message: "success", data: final })}}
+        else{
             let itemforadd = {
 
-                // "name": name,
                 "userId": userId,
                 "username": username,
                 "link": link,
@@ -83,20 +79,23 @@ const createLink = async function (req, res) {
             }
             let addlink = await linkModel.create(itemforadd)
 
-            // finduser.link = finduser.link + 1
-            // await finduser.save()
+            
             let printLink = await linkModel.findOne({ _id: addlink }).select({ __v: 0, createdAt: 0, updatedAt: 0 })
-            // finduser = finduser.toObject()
 
             extraLink = printLink
 
             return res.status(201).send({ status: true, message: "success", data: extraLink })
         }
+    // }
+    
+        
+    // }
 
-    } catch (err) {
-        res.status(500).send({ status: false, msg: err.message })
-    }
+} catch (err) {
+    res.status(500).send({ status: false, msg: err.message })
 }
+}
+
 
 
 
