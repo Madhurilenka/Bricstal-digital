@@ -41,8 +41,6 @@ const createLink = async function (req, res) {
 
         let extra = await linkModel.findOne({ username: username })
         // console.log(extra)
-        // let x  =JSON.parse(extra.linkinformation)
-        // console.log(x)
         if (extra) {
             let arr1
             if (extra.username == username) {
@@ -90,9 +88,6 @@ const createLink = async function (req, res) {
     }
 }
 
-
-
-
 const getLink = async (req, res) => {
     try {
         const filter = { isDeleted: false }
@@ -105,7 +100,7 @@ const getLink = async (req, res) => {
                 filter['username'] = username
             }
         }
-        const links = await linkModel.find(filter).select({ name: 1, link:1 }).collation({ locale: "en" }).sort({ links: 1 })
+        const links = await linkModel.find(filter).collation({ locale: "en" }).sort({ links: 1 })
 
         if (Object.keys(links).length == 0)
             return res.status(404).send({ status: false, msg: "No Such link found" })
