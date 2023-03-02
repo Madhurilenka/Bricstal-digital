@@ -7,12 +7,13 @@ const middleware = require("../middleware/auth")
 
 router.post("/register",user.CreateUser)
 router.post("/login",user.Login)
+router.delete("/deleteUser",middleware.authentication,user.deleteUser)
 
 
-router.post("/userId",middleware.authentication, link.createLink)
+router.post("/createlink",middleware.authentication, link.createLink)
 router.get("/linkId", link.getLink)
 
-router.delete("/deleteLink/:linkid",middleware.authentication,middleware.authorisation,link.deleteLink)
+router.delete("/deleteLink",middleware.authentication,link.deleteLink)
 //middleware.authorisation,
 
 

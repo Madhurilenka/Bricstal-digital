@@ -1,16 +1,24 @@
 const mongoose = require('mongoose')
+// const Aws = require('../AWS/dynamodb')
 
-const UserSchema = new mongoose.Schema({
+
+const LinkSchema = new mongoose.Schema({
 
 
     // name: { type:String, required:true,trim:true},
-    username:{type:String, required:true,trim:true},
-    userId: {type:mongoose.Schema.Types.ObjectId, required:true, ref:"user",trim:true},
-     link:[{type:String,trim:true}],
-     count:{type:Number,defult:0,trim:true},
-     deletedAt: { type: Date, default: null },
+    username:{type:String, required:true,ref:"user",trim:true},
+   
+    linkinformation:[{
+      // linkname:{type:String, required:true,trim:true},
+      linksrc:{type:String,trim:true},
+      linkname:{type:String, required:true,trim:true},
+      linkId:{type:Number,defult:0,trim:true},
+       deletedAt: { type: Date, default: null },
      isDeleted: { type: Boolean, default: false },
 
+    }],
+     count:{type:Number,defult:0,trim:true},
+    
 
 
 
@@ -18,4 +26,4 @@ const UserSchema = new mongoose.Schema({
     { timestamps: true });
 
 
-module.exports = mongoose.model("Link", UserSchema)
+module.exports = mongoose.model("Link", LinkSchema)

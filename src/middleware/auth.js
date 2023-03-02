@@ -36,7 +36,7 @@ let linkdata = await linkModel.findById(linkId)
 if(!linkdata){
 return res.status(404).send({status:false,msg:"no  link found"})
 }
-let updateuser = linkdata.userId.toString()
+let updateuser = linkdata.username //.toString()
 if(idFromToken !==updateuser){
    return res.status(403).send({ status: false, msg: "Unauthorized Access!!!...you are not authorised" });
         }else{
@@ -47,6 +47,7 @@ if(idFromToken !==updateuser){
          return res.status(500).send({ status: false, error: err.message });
      }
 }
+
 
 
 

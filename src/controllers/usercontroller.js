@@ -1,19 +1,15 @@
 const userModel = require("../Model/User")
 const jwt = require('jsonwebtoken')
+// const Aws = require('../AWS/dynamodb')
+
 
 const CreateUser = async (req, res) => {
     // console.log(req.body)
     try {
-        let { title, name, gender, phone,username, email, password } = req.body
+        let {  name, gender, phone,username, email, password } = req.body
 
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, msg: "You have to put details for create a user" })
-        }
-        if (!(title)) {
-            return res.status(400).send({ status: false, msg: "Title is mendatory for Create a User" })
-        }
-        if (!["Mr", "Mrs", "Miss"].includes(title)) {
-            return res.status(400).send({ status: false, msg: "Title must be only in['Mr','Mrs','Miss']" })
         }
         if (!(name)) {
             return res.status(400).send({ status: false, msg: "Name is mendatory for Create a User" })
@@ -100,4 +96,41 @@ const Login = async (req, res) => {
 
 }
 
-module.exports = { CreateUser, Login }
+
+
+const deleteUser = async (req,res)=>{
+try{
+    let {username}=req.query
+
+    if (Object.keys(req.query).length == 0) {
+        return res.status(400).send({ status: false, msg: "You have to put details for delete the user" })
+    }
+
+    if(!username){
+        return res.status(400).send({status:false,msg:"userName is mandatory for delete the user"})
+    }
+    if (!(/^[a-zA-Z0-9]+$/).test(username)) {
+        return res.status(400).send({ status: false, msg: "please Enter valid username " })
+    }
+
+    const finduser = await userModel.findOne({
+        username: username,
+        isDeleted: false,
+    });
+    if (!finduser)
+        return res.status(404).send({ status: false, msg: "USER Not Found or Does Not Exist" });
+
+    await userModel.findOneAndUpdate(
+        { username: username, isDeleted: false },
+        { $set: { isDeleted: true, deletedAt: new Date() } },
+        { new: true }
+    );
+    return res.status(200).send({ status: true, message: " user has been deleted successfully", });
+    }
+ catch (error) {
+    return res.status(500).send({ status: false, message: error.message });
+}
+}
+
+
+module.exports = { CreateUser, Login ,deleteUser}
