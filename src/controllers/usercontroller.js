@@ -1,5 +1,7 @@
 const userModel = require("../Model/User")
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+
 // const Aws = require('../AWS/dynamodb')
 
 
@@ -56,8 +58,20 @@ const CreateUser = async (req, res) => {
 
         let existEmail = await userModel.findOne({ email: email })
         if (existEmail) { return res.status(400).send({ status: false, msg: "User with this email is already registered" }) }
+        
+        const salt = await bcrypt.genSalt(10)                         
+        const encyptPassword = await bcrypt.hash(password, salt)
+        let obj = {
+            name:name,
+            gender:gender,
+            username:username,
+            phone:phone,
+            email:email,
+            password:encyptPassword,
+            
+        }
 
-        let savedData = await userModel.create(req.body);
+        let savedData = await userModel.create(obj);
         return res.status(201).send({ status: true, message: 'Success', data: savedData });
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.massege })
@@ -79,15 +93,22 @@ const Login = async (req, res) => {
         if (!password) {
             return res.status(400).send({ status: false, msg: "Password is mandatory for logging In" })
         }
-        let data = await userModel.findOne({ email: email, password: password })
+        let user = await userModel.findOne({ email: email })
 
-        if (!data) {
-            return res.status(400).send({ status: false, msg: "Email or Password is incorrect.Please recheck it" })
+        if (!user) {
+            return res.status(400).send({ status: false, msg: "Email is incorrect.Please recheck it" })
         }
+        const verifyPassword = await bcrypt.compare(password, user.password)
+            if (!verifyPassword) return res.status(400).send({ status: false, message: "Password is Invalid Please try again !!" })
         
-        let token = await jwt.sign({ id: data._id.toString() }, "bricstal-digital-group")
+        let token = await jwt.sign({ id: user._id.toString() }, "bricstal-digital-group")
         res.header({ "x-api-key": token })
-        return res.status(200).send({ status: true, message: "Login Successful", data: token })
+
+        let obj = {
+            userId: user._id,
+            token: token
+        }
+        return res.status(200).send({ status: true, message: "Login Successful", data: obj })
     }
     catch (err) {
         return res.status(500).send({ error: err.message });

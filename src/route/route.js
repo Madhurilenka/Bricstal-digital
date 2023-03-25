@@ -11,16 +11,16 @@ router.delete("/deleteUser",middleware.authentication,user.deleteUser)
 
 
 router.post("/createlink",middleware.authentication, link.createLink)
-router.get("/linkId", link.getLink)
+router.get("/username", link.getLink)
 
 router.delete("/deleteLink",middleware.authentication,link.deleteLink)
 //middleware.authorisation,
 
 
 
-// router.all("/*", function (req, res) {
-//     res.status(400).send({ status: false, message: "Invalid path params" });
-//   });
+router.all("/*", function (req, res) {
+    res.status(400).send({ status: false, message: "Invalid path params" });
+  });
 
 
 

@@ -6,7 +6,6 @@ const mongoose = require('mongoose')
 
 const authentication = function (req,res,next) {
    try {
-
     let token = req.headers['x-api-key']
     if(!token){
         return res.status(400).send({status:false,msg:"token must be present for varification"})
