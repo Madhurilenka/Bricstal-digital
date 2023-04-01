@@ -3,6 +3,7 @@ const express =require('express');
 const router = express.Router();
 const user = require('../controllers/usercontroller');
 const link = require('../controllers/linkcontoller')
+const hash = require("../controllers/hashtagController")
 const middleware = require("../middleware/auth")
 
 router.post("/register",user.CreateUser)
@@ -16,6 +17,9 @@ router.get("/username", link.getLink)
 router.delete("/deleteLink",middleware.authentication,link.deleteLink)
 //middleware.authorisation,
 
+//-----------------------------hashTag----------------------------------------//
+
+router.post("/CreateHashTag",hash.CreatHashTag)
 
 
 router.all("/*", function (req, res) {

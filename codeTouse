@@ -1,0 +1,53 @@
+// how to add a hashtag generator  code to use in the backend 
+
+
+
+
+
+// 1. Create a function to generate a random string of characters
+
+const generateHashtag = (length) => {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}
+
+// 2. Create a function to check if the hashtag already exists
+
+const checkHashtag = (hashtag) => {
+  // code to check if the hashtag already exists
+}
+
+// 3. Create a function to store the hashtag in a database
+
+const storeHashtag = (hashtag) => {
+  // code to store the hashtag in a database
+}
+
+// 4. Create a function to generate a unique hashtag
+
+const generateUniqueHashtag = () => {
+  let hashtag;
+  do {
+    hashtag = generateHashtag(10);
+  } while (checkHashtag(hashtag));
+  storeHashtag(hashtag);
+  return hashtag;
+}
+
+
+
+
+
+
+
+
+
+
+
